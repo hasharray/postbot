@@ -47,10 +47,26 @@ post '/contents/:user/:name/:type' do
   path.strip!
   path.gsub!(' ', '-')
 
-  message = options.fetch('message', "Create content")
-  create_response = Octokit.create_contents(params, path, message, content)
+  message = options.fetch('message', "Create #{path}")
 
-  if params.has_key?('redirect')
+  commit = options.fetch('commit')
+  if commit
+    create_response = Octokit.create_contents(params, path, message, content)
+  else
+    base_branch = "master"
+    content_branch = "content/#{path}"
+
+    base = Octokit.reference(params, "heads/#{base_branch}")
+    reference = Octokit.create_reference(params, "heads/#{content_branch}", base.object.sha)
+
+    contents = Octokit.create_content(params, path, message, content, {
+      :branch => content_branch,
+    })
+
+    Octokit.create_pull_request(params, base_branch, content_branch, message)
+  end
+
+  if params.fetch('redirect')
     redirect params.fetch('redirect')
   else
     "done"
