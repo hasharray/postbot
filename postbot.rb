@@ -66,8 +66,10 @@ post '/contents/:user/:name/:type' do
     Octokit.create_pull_request(params, base_branch, content_branch, message)
   end
 
-  if params.fetch('redirect')
-    redirect params.fetch('redirect')
+  redirect_uri = params.fetch('redirect')
+
+  if redirect_uri
+    redirect(redirect_uri)
   else
     "done"
   end
