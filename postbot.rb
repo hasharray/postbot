@@ -54,7 +54,7 @@ post '/contents/:user/:name/:type' do
     create_response = Octokit.create_contents(params, path, message, content)
   else
     base_branch = "master"
-    content_branch = "content/#{path}"
+    content_branch = "content-#{path}"
 
     base = Octokit.reference(params, "heads/#{base_branch}")
     reference = Octokit.create_reference(params, "heads/#{content_branch}", base.object.sha)
